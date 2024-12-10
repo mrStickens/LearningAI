@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Bot</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Добро пожаловать в Матрицу Судьбы!</h1>
+    <button id="send-data">Отправить данные</button>
+
+    <script>
+        const telegram = window.Telegram.WebApp;
+
+        // Отправить данные обратно боту
+        document.getElementById('send-data').addEventListener('click', () => {
+            const data = { action: 'matrix_fate', date: new Date().toISOString() };
+            telegram.sendData(JSON.stringify(data)); // Отправка данных боту
+            telegram.close(); // Закрыть Web App
+        });
+
+        // Настройка внешнего вида
+        telegram.MainButton.text = "Закрыть";
+        telegram.MainButton.show();
+    </script>
+</body>
+</html>
+
