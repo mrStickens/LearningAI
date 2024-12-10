@@ -3,27 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Bot</title>
+    <title>Matrix Bot Web App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
     <h1>Добро пожаловать в Матрицу Судьбы!</h1>
+    <p>Здесь вы можете получить расчёты и советы на день.</p>
     <button id="send-data">Отправить данные</button>
 
     <script>
         const telegram = window.Telegram.WebApp;
 
-        // Отправить данные обратно боту
+        // Отправка данных боту
         document.getElementById('send-data').addEventListener('click', () => {
-            const data = { action: 'matrix_fate', date: new Date().toISOString() };
-            telegram.sendData(JSON.stringify(data)); // Отправка данных боту
+            const data = {
+                action: "matrix_fate",
+                timestamp: new Date().toISOString(),
+            };
+            telegram.sendData(JSON.stringify(data)); // Отправить данные боту
             telegram.close(); // Закрыть Web App
         });
 
         // Настройка внешнего вида
-        telegram.MainButton.text = "Закрыть";
-        telegram.MainButton.show();
+        telegram.expand();
     </script>
 </body>
 </html>
-
