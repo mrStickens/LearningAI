@@ -72,4 +72,68 @@
 </head>
 <body>
     <h1>Рассчитайте Матрицу Судьбы</h1>
-    <form i
+    <form id="matrix-form">
+        <input type="date" id="birthdate" required />
+        <button type="submit">Рассчитать</button>
+    </form>
+    <div class="result" id="result"></div>
+    <footer>Matrix Bot © 2024</footer>
+
+    <script>
+        const telegram = window.Telegram.WebApp;
+
+        // Обработка отправки формы
+        document.getElementById('matrix-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const birthdate = document.getElementById('birthdate').value;
+            if (!birthdate) {
+                alert('Пожалуйста, введите дату рождения');
+                return;
+            }
+
+            // Логика расчёта Матрицы Судьбы
+            const result = calculateMatrix(birthdate);
+
+            // Отобразить результат
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <p>Ваше число судьбы: <strong>${result}</strong></p>
+                <p>Описание: ${getMatrixDescription(result)}</p>
+            `;
+
+            // Отправить данные в Telegram
+            telegram.sendData(JSON.stringify({ birthdate, result }));
+        });
+
+        // Расчёт числа судьбы
+        function calculateMatrix(birthdate) {
+            const digits = birthdate.replaceAll('-', '').split('').map(Number);
+            let sum = digits.reduce((acc, num) => acc + num, 0);
+            while (sum > 9) {
+                sum = String(sum).split('').map(Number).reduce((acc, num) => acc + num, 0);
+            }
+            return sum;
+        }
+
+        // Описание для чисел судьбы
+        function getMatrixDescription(number) {
+            const descriptions = {
+                1: "Вы прирождённый лидер с сильным характером.",
+                2: "Вы дипломатичны и стремитесь к гармонии.",
+                3: "Вы творческая личность с богатым воображением.",
+                4: "Вы стабильны и надёжны, любите порядок.",
+                5: "Вы свободолюбивы и открыты к переменам.",
+                6: "Вы заботливы и стремитесь к гармонии в отношениях.",
+                7: "Вы мыслитель с глубокими духовными ценностями.",
+                8: "Вы целеустремлённы и амбициозны.",
+                9: "Вы альтруист, стремящийся помочь окружающим."
+            };
+            return descriptions[number] || "Описание недоступно.";
+        }
+
+        // Расширить Web App
+        telegram.expand();
+    </script>
+</body>
+</html>
