@@ -21,6 +21,7 @@
         h1 {
             font-size: 24px;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         form {
@@ -58,23 +59,41 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
 
         .matrix-table {
-            margin-top: 20px;
+            margin: 20px 0;
             border-collapse: collapse;
         }
 
         .matrix-table td {
             border: 1px solid #ccc;
-            padding: 10px;
+            padding: 15px;
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             background: #f9fafb;
         }
 
         canvas {
             margin-top: 20px;
+        }
+
+        .descriptions {
+            margin-top: 20px;
+            text-align: left;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .descriptions h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .descriptions p {
+            margin: 5px 0;
         }
     </style>
 </head>
@@ -88,6 +107,7 @@
         <h2>Матрица</h2>
         <table class="matrix-table" id="matrix-table"></table>
         <canvas id="matrix-chart" width="400" height="400"></canvas>
+        <div class="descriptions" id="descriptions"></div>
     </div>
 
     <script>
@@ -101,6 +121,7 @@
             const matrix = calculateMatrix(birthdate);
             displayMatrix(matrix);
             drawChart(matrix);
+            displayDescriptions(matrix);
         });
 
         function calculateMatrix(birthdate) {
@@ -159,22 +180,50 @@
                     {
                         label: "Вхождения чисел",
                         data: matrix.flat(),
-                        backgroundColor: "rgba(75, 192, 192, 0.2)",
-                        borderColor: "rgba(75, 192, 192, 1)",
+                        backgroundColor: [
+                            "#FF6384", "#36A2EB", "#FFCE56",
+                            "#4BC0C0", "#9966FF", "#FF9F40",
+                            "#F7464A", "#46BFBD", "#FDB45C"
+                        ],
+                        borderColor: "#fff",
                         borderWidth: 1,
                     },
                 ],
             };
             new Chart(ctx, {
-                type: "bar",
+                type: "polarArea",
                 data,
                 options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: "top",
                         },
                     },
                 },
+            });
+        }
+
+        function displayDescriptions(matrix) {
+            const descriptions = {
+                1: "Единица: Лидерство, сила, энергия.",
+                2: "Двойка: Гармония, баланс, партнёрство.",
+                3: "Тройка: Творчество, оптимизм, общение.",
+                4: "Четвёрка: Стабильность, практичность, порядок.",
+                5: "Пятёрка: Свобода, перемены, энергия.",
+                6: "Шестёрка: Гармония, забота, любовь.",
+                7: "Семёрка: Мудрость, анализ, духовность.",
+                8: "Восьмёрка: Власть, успех, достижение.",
+                9: "Девятка: Альтруизм, мудрость, сострадание."
+            };
+
+            const descriptionDiv = document.getElementById("descriptions");
+            descriptionDiv.innerHTML = "<h2>Пояснения:</h2>";
+
+            matrix.flat().forEach((num, index) => {
+                if (num > 0) {
+                    descriptionDiv.innerHTML += `<p>${descriptions[index + 1]} (${num} раз)</p>`;
+                }
             });
         }
     </script>
