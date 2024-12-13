@@ -4,41 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Матрица Судьбы</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
             background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
             color: #333;
         }
 
         h1 {
             font-size: 24px;
-            color: #4b5563;
             margin-bottom: 20px;
         }
 
         form {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 15px;
+            margin-bottom: 20px;
         }
 
         input {
             padding: 10px;
             font-size: 16px;
-            border: 1px solid #d1d5db;
+            border: 1px solid #ccc;
             border-radius: 8px;
-            width: 250px;
             text-align: center;
+            width: 250px;
         }
 
         button {
@@ -49,91 +47,136 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
         button:hover {
             background-color: #1f2937;
         }
 
-        .result {
+        .matrix {
             margin-top: 20px;
-            font-size: 18px;
-            color: #1f2937;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        footer {
+        .matrix-table {
             margin-top: 20px;
-            font-size: 14px;
-            color: #9ca3af;
+            border-collapse: collapse;
+        }
+
+        .matrix-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: center;
+            font-size: 16px;
+            background: #f9fafb;
+        }
+
+        canvas {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Рассчитайте Матрицу Судьбы</h1>
+    <h1>Матрица Судьбы</h1>
     <form id="matrix-form">
         <input type="date" id="birthdate" required />
         <button type="submit">Рассчитать</button>
     </form>
-    <div class="result" id="result"></div>
-    <footer>Matrix Bot © 2024</footer>
+    <div class="matrix" id="matrix-output">
+        <h2>Матрица</h2>
+        <table class="matrix-table" id="matrix-table"></table>
+        <canvas id="matrix-chart" width="400" height="400"></canvas>
+    </div>
 
     <script>
-        const telegram = window.Telegram.WebApp;
-
-        // Обработка отправки формы
-        document.getElementById('matrix-form').addEventListener('submit', (event) => {
+        document.getElementById("matrix-form").addEventListener("submit", function (event) {
             event.preventDefault();
-
-            const birthdate = document.getElementById('birthdate').value;
+            const birthdate = document.getElementById("birthdate").value;
             if (!birthdate) {
-                alert('Пожалуйста, введите дату рождения');
+                alert("Введите корректную дату рождения!");
                 return;
             }
-
-            // Логика расчёта Матрицы Судьбы
-            const result = calculateMatrix(birthdate);
-
-            // Отобразить результат
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `
-                <p>Ваше число судьбы: <strong>${result}</strong></p>
-                <p>Описание: ${getMatrixDescription(result)}</p>
-            `;
-
-            // Отправить данные в Telegram
-            telegram.sendData(JSON.stringify({ birthdate, result }));
+            const matrix = calculateMatrix(birthdate);
+            displayMatrix(matrix);
+            drawChart(matrix);
         });
 
-        // Расчёт числа судьбы
         function calculateMatrix(birthdate) {
-            const digits = birthdate.replaceAll('-', '').split('').map(Number);
-            let sum = digits.reduce((acc, num) => acc + num, 0);
-            while (sum > 9) {
-                sum = String(sum).split('').map(Number).reduce((acc, num) => acc + num, 0);
+            const digits = birthdate.replaceAll("-", "").split("").map(Number);
+            const day = parseInt(birthdate.slice(8, 10), 10);
+            const S1 = digits.reduce((sum, num) => sum + num, 0);
+            const S2 = reduceToSingleDigit(S1);
+            const D = S1 - 2 * day;
+            const S3 = reduceToSingleDigit(D);
+
+            const finalDigits = [
+                ...digits,
+                ...String(S1).split("").map(Number),
+                ...String(S2).split("").map(Number),
+                ...String(D).split("").map(Number),
+                ...String(S3).split("").map(Number),
+            ].filter((num) => num !== 0);
+
+            const counts = Array.from({ length: 9 }, (_, i) => finalDigits.filter((d) => d === i + 1).length);
+            return [
+                [counts[0], counts[1], counts[2]],
+                [counts[3], counts[4], counts[5]],
+                [counts[6], counts[7], counts[8]],
+            ];
+        }
+
+        function reduceToSingleDigit(num) {
+            while (num > 9) {
+                num = String(num)
+                    .split("")
+                    .map(Number)
+                    .reduce((acc, val) => acc + val, 0);
             }
-            return sum;
+            return num;
         }
 
-        // Описание для чисел судьбы
-        function getMatrixDescription(number) {
-            const descriptions = {
-                1: "Вы прирождённый лидер с сильным характером.",
-                2: "Вы дипломатичны и стремитесь к гармонии.",
-                3: "Вы творческая личность с богатым воображением.",
-                4: "Вы стабильны и надёжны, любите порядок.",
-                5: "Вы свободолюбивы и открыты к переменам.",
-                6: "Вы заботливы и стремитесь к гармонии в отношениях.",
-                7: "Вы мыслитель с глубокими духовными ценностями.",
-                8: "Вы целеустремлённы и амбициозны.",
-                9: "Вы альтруист, стремящийся помочь окружающим."
+        function displayMatrix(matrix) {
+            const table = document.getElementById("matrix-table");
+            table.innerHTML = "";
+            matrix.forEach((row) => {
+                const tr = document.createElement("tr");
+                row.forEach((cell) => {
+                    const td = document.createElement("td");
+                    td.textContent = cell;
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+        }
+
+        function drawChart(matrix) {
+            const ctx = document.getElementById("matrix-chart").getContext("2d");
+            const data = {
+                labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                datasets: [
+                    {
+                        label: "Вхождения чисел",
+                        data: matrix.flat(),
+                        backgroundColor: "rgba(75, 192, 192, 0.2)",
+                        borderColor: "rgba(75, 192, 192, 1)",
+                        borderWidth: 1,
+                    },
+                ],
             };
-            return descriptions[number] || "Описание недоступно.";
+            new Chart(ctx, {
+                type: "bar",
+                data,
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        },
+                    },
+                },
+            });
         }
-
-        // Расширить Web App
-        telegram.expand();
     </script>
 </body>
 </html>
