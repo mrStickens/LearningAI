@@ -1,46 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Bot Web App</title>
+    <title>Матрица Судьбы</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            color: #333;
         }
+
+        h1 {
+            font-size: 24px;
+            color: #4b5563;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            width: 250px;
+            text-align: center;
+        }
+
         button {
             padding: 10px 20px;
-            background-color: #0088cc;
+            font-size: 16px;
             color: white;
+            background-color: #4b5563;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1f2937;
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #1f2937;
+            text-align: center;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #9ca3af;
         }
     </style>
 </head>
 <body>
-    <h1>Добро пожаловать в Матрицу Судьбы!</h1>
-    <p>Здесь вы можете получить расчёты и советы на день.</p>
-    <button id="send-data">Отправить данные</button>
-
-    <script>
-        const telegram = window.Telegram.WebApp;
-
-        // Отправка данных боту
-        document.getElementById('send-data').addEventListener('click', () => {
-            const data = {
-                action: "matrix_fate",
-                timestamp: new Date().toISOString(),
-            };
-            telegram.sendData(JSON.stringify(data)); // Отправить данные боту
-            telegram.close(); // Закрыть Web App
-        });
-
-        // Настройка внешнего вида
-        telegram.expand();
-    </script>
-</body>
-</html>
+    <h1>Рассчитайте Матрицу Судьбы</h1>
+    <form i
