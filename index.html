@@ -4,228 +4,229 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Матрица Судьбы</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="matrix-calculator.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Матрица Судьбы</h1>
+            <p class="subtitle">Раскройте тайны своего жизненного пути</p>
+        </div>
+
+        <div class="input-section">
+            <input type="date" id="birthdate" class="date-input">
+            <button id="calculate-btn" class="primary-btn">Рассчитать матрицу</button>
+        </div>
+
+        <div class="matrix-container">
+            <canvas id="matrixChart"></canvas>
+        </div>
+
+        <div class="description-container">
+            <div id="matrix-description" class="description-text"></div>
+        </div>
+
+        <div class="controls">
+            <button id="send-data" class="secondary-btn">Сохранить результат</button>
+        </div>
+    </div>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
-            color: #333;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
         }
 
         h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff88, #00a3ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #888;
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+
+        .input-section {
             text-align: center;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
             margin-bottom: 20px;
         }
 
-        input {
+        .date-input {
             padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
             border-radius: 8px;
-            text-align: center;
-            width: 250px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+
+        .matrix-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            height: 400px;
+        }
+
+        .description-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
         }
 
         button {
-            padding: 10px 20px;
-            font-size: 16px;
-            color: white;
-            background-color: #4b5563;
+            padding: 12px 25px;
             border: none;
             border-radius: 8px;
+            font-size: 1.1em;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
         button:hover {
-            background-color: #1f2937;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
-        .matrix {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
+        .primary-btn {
+            background: linear-gradient(45deg, #00ff88, #00a3ff);
+            color: #000;
         }
 
-        .matrix-table {
-            margin: 20px 0;
-            border-collapse: collapse;
-        }
-
-        .matrix-table td {
-            border: 1px solid #ccc;
-            padding: 15px;
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            background: #f9fafb;
-        }
-
-        canvas {
-            margin-top: 20px;
-        }
-
-        .descriptions {
-            margin-top: 20px;
-            text-align: left;
-            width: 100%;
-            max-width: 800px;
-        }
-
-        .descriptions h2 {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-
-        .descriptions p {
-            margin: 5px 0;
+        .secondary-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
     </style>
-</head>
-<body>
-    <h1>Матрица Судьбы</h1>
-    <form id="matrix-form">
-        <input type="date" id="birthdate" required />
-        <button type="submit">Рассчитать</button>
-    </form>
-    <div class="matrix" id="matrix-output">
-        <h2>Матрица</h2>
-        <table class="matrix-table" id="matrix-table"></table>
-        <canvas id="matrix-chart" width="400" height="400"></canvas>
-        <div class="descriptions" id="descriptions"></div>
-    </div>
 
     <script>
-        document.getElementById("matrix-form").addEventListener("submit", function (event) {
-            event.preventDefault();
-            const birthdate = document.getElementById("birthdate").value;
-            if (!birthdate) {
-                alert("Введите корректную дату рождения!");
-                return;
-            }
-            const matrix = calculateMatrix(birthdate);
-            displayMatrix(matrix);
-            drawChart(matrix);
-            displayDescriptions(matrix);
-        });
+        const telegram = window.Telegram.WebApp;
+        let matrixChart;
+        let currentMatrixData = null;
 
-        function calculateMatrix(birthdate) {
-            const digits = birthdate.replaceAll("-", "").split("").map(Number);
-            const day = parseInt(birthdate.slice(8, 10), 10);
-            const S1 = digits.reduce((sum, num) => sum + num, 0);
-            const S2 = reduceToSingleDigit(S1);
-            const D = S1 - 2 * day;
-            const S3 = reduceToSingleDigit(D);
-
-            const finalDigits = [
-                ...digits,
-                ...String(S1).split("").map(Number),
-                ...String(S2).split("").map(Number),
-                ...String(D).split("").map(Number),
-                ...String(S3).split("").map(Number),
-            ].filter((num) => num !== 0);
-
-            const counts = Array.from({ length: 9 }, (_, i) => finalDigits.filter((d) => d === i + 1).length);
-            return [
-                [counts[0], counts[1], counts[2]],
-                [counts[3], counts[4], counts[5]],
-                [counts[6], counts[7], counts[8]],
-            ];
-        }
-
-        function reduceToSingleDigit(num) {
-            while (num > 9) {
-                num = String(num)
-                    .split("")
-                    .map(Number)
-                    .reduce((acc, val) => acc + val, 0);
-            }
-            return num;
-        }
-
-        function displayMatrix(matrix) {
-            const table = document.getElementById("matrix-table");
-            table.innerHTML = "";
-            matrix.forEach((row) => {
-                const tr = document.createElement("tr");
-                row.forEach((cell) => {
-                    const td = document.createElement("td");
-                    td.textContent = cell;
-                    tr.appendChild(td);
-                });
-                table.appendChild(tr);
-            });
-        }
-
-        function drawChart(matrix) {
-            const ctx = document.getElementById("matrix-chart").getContext("2d");
-            const data = {
-                labels: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-                datasets: [
-                    {
-                        label: "Вхождения чисел",
-                        data: matrix.flat(),
-                        backgroundColor: [
-                            "#FF6384", "#36A2EB", "#FFCE56",
-                            "#4BC0C0", "#9966FF", "#FF9F40",
-                            "#F7464A", "#46BFBD", "#FDB45C"
-                        ],
-                        borderColor: "#fff",
-                        borderWidth: 1,
-                    },
-                ],
-            };
-            new Chart(ctx, {
-                type: "polarArea",
-                data,
+        // Инициализация графика
+        function initChart() {
+            const ctx = document.getElementById('matrixChart').getContext('2d');
+            matrixChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Характер', 'Энергия', 'Интерес', 'Здоровье', 'Логика', 'Труд', 'Удача', 'Долг'],
+                    datasets: [{
+                        label: 'Ваша матрица',
+                        data: [0, 0, 0, 0, 0, 0, 0, 0],
+                        backgroundColor: 'rgba(0, 255, 136, 0.2)',
+                        borderColor: 'rgba(0, 255, 136, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(0, 163, 255, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(0, 163, 255, 1)'
+                    }]
+                },
                 options: {
-                    responsive: true,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.2)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.2)' },
+                            pointLabels: {
+                                color: '#fff',
+                                font: { size: 14 }
+                            },
+                            ticks: {
+                                color: '#888',
+                                backdropColor: 'transparent'
+                            }
+                        }
+                    },
                     plugins: {
                         legend: {
-                            position: "top",
-                        },
-                    },
-                },
-            });
-        }
-
-        function displayDescriptions(matrix) {
-            const descriptions = {
-                1: "Единица: Лидерство, сила, энергия.",
-                2: "Двойка: Гармония, баланс, партнёрство.",
-                3: "Тройка: Творчество, оптимизм, общение.",
-                4: "Четвёрка: Стабильность, практичность, порядок.",
-                5: "Пятёрка: Свобода, перемены, энергия.",
-                6: "Шестёрка: Гармония, забота, любовь.",
-                7: "Семёрка: Мудрость, анализ, духовность.",
-                8: "Восьмёрка: Власть, успех, достижение.",
-                9: "Девятка: Альтруизм, мудрость, сострадание."
-            };
-
-            const descriptionDiv = document.getElementById("descriptions");
-            descriptionDiv.innerHTML = "<h2>Пояснения:</h2>";
-
-            matrix.flat().forEach((num, index) => {
-                if (num > 0) {
-                    descriptionDiv.innerHTML += `<p>${descriptions[index + 1]} (${num} раз)</p>`;
+                            labels: { color: '#fff' }
+                        }
+                    }
                 }
             });
         }
+
+        // Обновление графика и описания
+        function updateMatrix(matrixData) {
+            currentMatrixData = matrixData;
+            const values = Object.values(matrixData);
+            
+            matrixChart.data.datasets[0].data = values;
+            matrixChart.update();
+
+            // Обновление описания
+            const calculator = new MatrixCalculator(document.getElementById('birthdate').value);
+            const descriptions = calculator.getDescriptions(matrixData);
+            
+            const descriptionHtml = Object.entries(descriptions)
+                .map(([key, value]) => `<p><strong>${key}:</strong> ${value}</p>`)
+                .join('');
+            
+            document.getElementById('matrix-description').innerHTML = descriptionHtml;
+        }
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+
+            // Обработчик кнопки расчета
+            document.getElementById('calculate-btn').addEventListener('click', () => {
+                const birthdate = document.getElementById('birthdate').value;
+                const calculator = new MatrixCalculator(birthdate);
+                const matrixData = calculator.calculateBaseNumbers();
+                updateMatrix(matrixData);
+            });
+
+            // Обработчик отправки данных
+            document.getElementById('send-data').addEventListener('click', () => {
+                if (currentMatrixData) {
+                    const data = {
+                        action: 'matrix_fate',
+                        date: new Date().toISOString(),
+                        matrix: currentMatrixData
+                    };
+                    telegram.sendData(JSON.stringify(data));
+                    telegram.close();
+                }
+            });
+        });
+
+        // Настройка Telegram Web App
+        telegram.ready();
+        telegram.MainButton.hide();
     </script>
 </body>
 </html>
